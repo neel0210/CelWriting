@@ -1,0 +1,5 @@
+{
+  "name": "CELPIP Writing AI Simulator",
+  "description": "A production-ready CELPIP writing practice platform with 50+ real exam topics, exam-like simulation UI, and instant AI grading using Gemini models.",
+  "requestFramePermissions": []
+}
