@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { HashRouter, Routes, Route, Navigate, useNavigate, useLocation, useParams, Link } from 'react-router-dom';
-import { BookOpen, PenTool, CheckCircle, AlertCircle, Menu, X, Home, Clock, ChevronRight } from 'lucide-react';
+import { BookOpen, PenTool, CheckCircle, AlertCircle, Menu, X, Home, Clock, ChevronRight, Sparkles } from 'lucide-react';
 import { QUESTIONS } from './data/questions';
 import { Question, TaskType, EvaluationResult } from './types';
 import { evaluateWriting } from './services/geminiService';
@@ -11,11 +11,11 @@ const Header = () => (
   <header className="bg-black border-b border-zinc-800 sticky top-0 z-50">
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div className="flex justify-between h-16 items-center">
-        <Link to="/" className="flex items-center gap-2 text-decoration-none">
-          <div className="bg-blue-600 p-2 rounded-lg">
+        <Link to="/" className="flex items-center gap-2 text-decoration-none group">
+          <div className="bg-blue-600 p-2 rounded-lg group-hover:bg-blue-500 transition-colors">
             <PenTool className="h-6 w-6 text-white" />
           </div>
-          <span className="text-xl font-bold text-white hidden sm:block">CELPIP AI Simulator</span>
+          <span className="text-2xl font-black text-white tracking-tighter">CelWrite</span>
         </Link>
         <nav className="flex space-x-4">
            <Link to="/" className="text-zinc-400 hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium transition-colors">Dashboard</Link>
@@ -28,9 +28,12 @@ const Header = () => (
 
 const Footer = () => (
   <footer className="bg-black border-t border-zinc-800 mt-auto">
-    <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-      <p className="text-center text-sm text-zinc-500">
-        &copy; {new Date().getFullYear()} CELPIP AI Simulator. Designed for high-performance practice.
+    <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8 text-center">
+      <p className="text-sm text-zinc-500 mb-2">
+        &copy; {new Date().getFullYear()} CelWrite. Designed for high-performance practice.
+      </p>
+      <p className="text-xs text-zinc-600 font-medium tracking-wide">
+        BY <span className="text-zinc-400">NEEL0210</span>, LEVERAGING AI.
       </p>
     </div>
   </footer>
@@ -66,9 +69,13 @@ const Dashboard = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <div className="text-center mb-16">
-        <h1 className="text-5xl font-black text-white mb-4 tracking-tight">Master CELPIP Writing</h1>
+        <div className="inline-flex items-center gap-2 bg-blue-600/10 border border-blue-500/20 px-4 py-1 rounded-full text-blue-400 text-xs font-bold mb-6">
+          <Sparkles className="w-3 h-3" />
+        </div>
+        <h1 className="text-6xl font-black text-white mb-4 tracking-tight">Master CELPIP Writing</h1>
         <p className="text-xl text-zinc-400 max-w-2xl mx-auto font-light">
-          Get instant AI evaluation using Gemini 2.5 Flash-Lite.
+          Experience the future of exam prep with <span className="text-white font-semibold">CelWrite</span>. 
+          Instant AI feedback and band scoring.
         </p>
       </div>
 
@@ -83,7 +90,7 @@ const Dashboard = () => {
                 : 'bg-zinc-900 text-zinc-400 hover:text-white border border-zinc-800'
             }`}
           >
-            {f === 'ALL' ? 'All Tasks' : f === 'TASK_1' ? 'Email' : 'Survey'}
+            {f === 'ALL' ? 'All Tasks' : f === 'TASK_1' ? 'Email Task' : 'Survey Task'}
           </button>
         ))}
       </div>
@@ -119,7 +126,7 @@ const CustomTopic = () => {
   return (
     <div className="max-w-2xl mx-auto px-4 py-12">
       <div className="bg-zinc-900 rounded-2xl border border-zinc-800 p-8">
-        <h2 className="text-2xl font-bold text-white mb-8">Create Custom Scenario</h2>
+        <h2 className="text-2xl font-bold text-white mb-8">Custom CelWrite Scenario</h2>
         <div className="space-y-6">
           <div className="flex gap-4 p-1 bg-black rounded-xl border border-zinc-800">
             {[TaskType.TASK_1, TaskType.TASK_2].map((t) => (
@@ -153,14 +160,14 @@ const CustomTopic = () => {
                     const n = [...bullets]; n[i] = e.target.value; setBullets(n);
                   }}
                   className="w-full px-4 py-3 bg-black border border-zinc-800 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-white"
-                  placeholder={`Bullet ${i + 1}`}
+                  placeholder={`Instruction Bullet ${i + 1}`}
                 />
               ))}
             </div>
           ) : (
             <div className="space-y-4">
-              <input value={optionA} onChange={(e) => setOptionA(e.target.value)} className="w-full px-4 py-3 bg-black border border-zinc-800 rounded-xl outline-none text-white" placeholder="Option A" />
-              <input value={optionB} onChange={(e) => setOptionB(e.target.value)} className="w-full px-4 py-3 bg-black border border-zinc-800 rounded-xl outline-none text-white" placeholder="Option B" />
+              <input value={optionA} onChange={(e) => setOptionA(e.target.value)} className="w-full px-4 py-3 bg-black border border-zinc-800 rounded-xl outline-none text-white" placeholder="Option A (e.g., Build a park)" />
+              <input value={optionB} onChange={(e) => setOptionB(e.target.value)} className="w-full px-4 py-3 bg-black border border-zinc-800 rounded-xl outline-none text-white" placeholder="Option B (e.g., Build a library)" />
             </div>
           )}
 
@@ -168,7 +175,7 @@ const CustomTopic = () => {
             onClick={handleStart} disabled={!title || !prompt}
             className="w-full bg-blue-600 text-white py-4 rounded-xl font-bold hover:bg-blue-500 disabled:opacity-30 transition-all"
           >
-            Launch Simulator
+            Launch CelWrite Simulator
           </button>
         </div>
       </div>
@@ -189,7 +196,7 @@ const ExamSimulator = () => {
   const [timeLeft, setTimeLeft] = useState(question?.type === TaskType.TASK_1 ? 27 * 60 : 26 * 60);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const timer = setInterval(() => setTimeLeft(p => p > 0 ? p - 1 : 0), 1000);
     return () => clearInterval(timer);
   }, []);
@@ -208,7 +215,7 @@ const ExamSimulator = () => {
       const result = await evaluateWriting(question, response);
       navigate('/result', { state: { result, question, userResponse: response } });
     } catch {
-      alert("Evaluation failed.");
+      alert("Evaluation failed. Please check your connection.");
       setIsSubmitting(false);
     }
   };
@@ -218,7 +225,7 @@ const ExamSimulator = () => {
       <div className="bg-zinc-900 border-b border-zinc-800 px-6 py-3 flex justify-between items-center">
         <div className="flex items-center gap-3">
           <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
-          <span className="font-bold text-white uppercase tracking-widest text-sm">{question.type}</span>
+          <span className="font-bold text-white uppercase tracking-widest text-xs">CelWrite Live Simulator</span>
         </div>
         <div className="flex items-center gap-4 bg-black border border-zinc-800 px-4 py-1.5 rounded-lg">
           <Clock className="w-4 h-4 text-blue-400" />
@@ -261,9 +268,9 @@ const ExamSimulator = () => {
             </span>
             <button
               onClick={handleSubmit} disabled={isSubmitting || wordCount < 5}
-              className="bg-blue-600 hover:bg-blue-500 text-white px-10 py-3 rounded-xl font-black transition-all disabled:opacity-20"
+              className="bg-blue-600 hover:bg-blue-500 text-white px-10 py-3 rounded-xl font-black transition-all disabled:opacity-20 shadow-lg shadow-blue-600/20"
             >
-              {isSubmitting ? 'AI ANALYZING...' : 'FINISH TEST'}
+              {isSubmitting ? 'CELWRITE ANALYZING...' : 'FINISH TEST'}
             </button>
           </div>
         </div>
@@ -285,9 +292,9 @@ const ResultPage = () => {
       <div className="flex justify-between items-end mb-12">
         <div>
           <h1 className="text-4xl font-black text-white">Score Report</h1>
-          <p className="text-zinc-500 mt-2">Gemini 2.5 Flash-Lite Analysis</p>
+          <p className="text-zinc-500 mt-2">CelWrite Engine: Gemini 2.5 Flash-Lite Analysis</p>
         </div>
-        <button onClick={() => navigate('/')} className="px-6 py-2 bg-zinc-900 border border-zinc-800 text-white rounded-lg hover:bg-zinc-800 transition-all flex items-center gap-2">
+        <button onClick={() => navigate('/')} className="px-6 py-2 bg-zinc-900 border border-zinc-800 text-white rounded-lg hover:bg-zinc-800 transition-all flex items-center gap-2 font-bold">
           <Home className="w-4 h-4" /> Dashboard
         </button>
       </div>
@@ -295,7 +302,7 @@ const ResultPage = () => {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         <div className="lg:col-span-4 space-y-6">
           <div className="bg-zinc-900 p-10 rounded-3xl border border-zinc-800 text-center shadow-2xl">
-            <h2 className="text-zinc-500 font-bold uppercase tracking-widest text-xs mb-4">Final Band</h2>
+            <h2 className="text-zinc-500 font-bold uppercase tracking-widest text-xs mb-4">Estimated Band</h2>
             <div className="text-8xl font-black text-blue-500 drop-shadow-[0_0_15px_rgba(59,130,246,0.5)]">
               {result.bandScore}
             </div>
@@ -324,7 +331,7 @@ const ResultPage = () => {
         <div className="lg:col-span-8 space-y-6">
           <div className="bg-zinc-900 p-8 rounded-3xl border border-zinc-800">
             <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-              <CheckCircle className="text-blue-500" /> Examiner Feedback
+              <CheckCircle className="text-blue-500" /> CelWrite Feedback
             </h3>
             <p className="text-zinc-300 leading-relaxed italic">"{result.feedback}"</p>
           </div>
