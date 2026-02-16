@@ -4,6 +4,8 @@ import { BookOpen, PenTool, CheckCircle, AlertCircle, Menu, X, Home, Clock, Chev
 import { QUESTIONS } from './data/questions';
 import { Question, TaskType, EvaluationResult } from './types';
 import { evaluateWriting } from './services/geminiService';
+// --- NEW IMPORT ---
+import { supabase } from './supabaseClient';
 
 // --- Components ---
 
@@ -42,7 +44,7 @@ const Footer = () => (
 const QuestionCard = ({ question, onSelect }: { question: Question; onSelect: (q: Question) => void }) => (
   <div 
     onClick={() => onSelect(question)}
-    className="bg-zinc-900 p-6 rounded-xl border border-zinc-800 hover:border-blue-500/50 hover:bg-zinc-800/50 cursor-pointer transition-all duration-300 group"
+    className="bg-zinc-900 p-6 rounded-xl shadow-sm border border-zinc-800 hover:border-blue-500/50 hover:bg-zinc-800/50 cursor-pointer transition-all duration-300 group"
   >
     <div className="flex justify-between items-start mb-4">
       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${question.type === TaskType.TASK_1 ? 'bg-blue-900/30 text-blue-400 border border-blue-800/50' : 'bg-purple-900/30 text-purple-400 border border-purple-800/50'}`}>
@@ -240,6 +242,27 @@ const ExamSimulator = () => {
     setIsSubmitting(true);
     try {
       const result = await evaluateWriting(question, response);
+      
+      // --- NEW: SUPABASE INSERT ---
+      const { error } = await supabase
+        .from('attempts')
+        .insert([
+          {
+            task_title: question.title,
+            task_type: question.type,
+            user_response: response,
+            band_score: result.bandScore,
+            content_score: result.contentScore,
+            vocab_score: result.vocabularyScore,
+            grammar_score: result.grammarScore,
+            task_score: result.taskFulfillmentScore,
+            feedback: result.feedback,
+            model_answer: result.correctedVersion
+          }
+        ]);
+      
+      if (error) console.error("Database error:", error);
+
       navigate('/result', { state: { result, question, userResponse: response } });
     } catch {
       alert("Evaluation failed. Please check your connection.");
